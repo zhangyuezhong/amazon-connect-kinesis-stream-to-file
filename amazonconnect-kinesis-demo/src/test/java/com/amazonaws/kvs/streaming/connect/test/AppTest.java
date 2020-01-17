@@ -1,4 +1,4 @@
-package com.telstra.amazonconnect_kinesis_demo;
+package com.amazonaws.kvs.streaming.connect.test;
 
 import java.io.File;
 import java.nio.file.Path;

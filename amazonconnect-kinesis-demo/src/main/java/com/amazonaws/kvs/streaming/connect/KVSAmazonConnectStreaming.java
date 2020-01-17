@@ -90,9 +90,9 @@ public class KVSAmazonConnectStreaming {
 		System.out.println(kvsInputStream.getClass().getCanonicalName());
 		FragmentMetadataVisitor.BasicMkvTagProcessor tagProcessor = new FragmentMetadataVisitor.BasicMkvTagProcessor();
 		FragmentMetadataVisitor fragmentVisitor = FragmentMetadataVisitor.create(Optional.of(tagProcessor));
-
+		
 		String fileName = String.format("%s_%s_%s.raw", contactId, DATE_FORMAT.format(new Date()), trackName);
-		Path saveAudioFilePath = Paths.get(System.getProperty("user.dir"), fileName);
+		Path saveAudioFilePath = this.getTmpDir().resolve(fileName);
 		FileOutputStream fileOutputStream = new FileOutputStream(saveAudioFilePath.toString());
 
 		return new KVSStreamTrackObject(kvsInputStream, streamingMkvReader, tagProcessor, fragmentVisitor,
@@ -161,10 +161,15 @@ public class KVSAmazonConnectStreaming {
 	}
 
 	public Path getTmpDir() {
-		if (tmpDir != null && Files.isDirectory(tmpDir, LinkOption.NOFOLLOW_LINKS)) {
-			return tmpDir;
+		if (tmpDir != null) {
+			if (Files.isDirectory(tmpDir, LinkOption.NOFOLLOW_LINKS) && Files.isWritable(tmpDir)) {
+				return tmpDir;
+			} else {
+				tmpDir = null;
+			}
 		}
-		return Paths.get(System.getProperty("tmp.dir"));
+		this.tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
+		return tmpDir;
 	}
 
 	public void setTmpDir(Path tmpDir) {
